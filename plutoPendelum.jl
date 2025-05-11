@@ -95,7 +95,7 @@ begin
 	g = 9.81       # gravity
 	
 	# Time settings
-	Δt = 0.01
+	Δt = 0.001
 	T = 10.0
 	times = collect(0:Δt:T)
 	
@@ -130,7 +130,8 @@ begin
 		
 		θ̈ = ((mc + mp) * g * sin(θ) - F * cos(θ) + mp * l * θ̇^2 * sin(θ) * cos(θ)) /
 		    (((4/3) * (mc + mp) * l) - mp * l * cos(θ)^2)
-
+		
+		
 	    # Euler integration
 	    θ̇ += θ̈ * Δt
 	    θ += θ̇ * Δt
@@ -160,68 +161,6 @@ begin
 	
 	plot(p1, p2, p3, layout = (3, 1), size = (800, 800))
 
-end
-
-# ╔═╡ 173d20ab-c5fc-4262-b47a-20d3d0f4a925
-begin
-	# --- PID controller parameters ---
-	Kp = 50.0
-	Ki = 0.0
-	Kd = 10.0
-	integral_pid = 0.0
-	previous_error_pid = 0.0
-	θ_target_pid = 0.0
-	
-	
-	# --- Logging ---
-	θs_pid = Float64[]
-	xs_pid = Float64[]
-	Fs_pid = Float64[]
-	
-	# --- PID simulation loop ---
-	for t in times
-	    # --- PID control force ---
-	    error_pid = θ_pid - θ_target_pid
-	    integral_pid += error_pid * Δt
-	    derivative_pid = (error_pid - previous_error_pid) / Δt
-	    F_pid = Kp * error_pid + Ki * integral_pid + Kd * derivative_pid
-	    previous_error_pid = error_pid
-	
-	    # --- Equations of motion (from paper) ---
-		ẍ_pid = ((4/3) * F_pid - (4/3) * mp * l * θ̇_pid^2 * sin(θ_pid) - mp * g * sin(θ_pid) * cos(θ_pid)) /
-		((4/3) * (mc + mp) - mp * l * cos(θ_pid)^2)
-		
-		θ̈_pid = ((mc + mp) * g * sin(θ_pid) - F_pid * cos(θ_pid) + mp * l * θ̇_pid^2 * sin(θ_pid) * cos(θ_pid)) /
-		(((4/3) * (mc + mp) * l) - mp * l * cos(θ_pid)^2)
-
-	
-	    # --- Euler integration ---
-	    θ̇_pid += θ̈_pid * Δt
-	    θ_pid += θ̇_pid * Δt
-	    ẋ_pid += ẍ_pid * Δt
-	    x_pid += ẋ_pid * Δt
-	
-	    # --- Logging ---
-	    push!(θs_pid, θ_pid)
-	    push!(xs_pid, x_pid)
-	    push!(Fs_pid, F_pid)
-	end
-end
-
-# ╔═╡ 4b0a5a3d-f39b-42d2-b1f5-671e87d1345b
-begin	
-	# --- Plotting results ---
-	p4 = plot(times, θs_pid, label = "θ(t)", xlabel = "Time (s)", ylabel = "Angle (rad)", lw = 2,
-	          title = "Pendulum Angle with PID Controller")
-	
-	p5 = plot(times, xs_pid, label = "x(t)", xlabel = "Time (s)", ylabel = "Cart Position (m)", lw = 2,
-	          title = "Cart Position with PID Controller")
-	
-	p6 = plot(times, Fs_pid, label = "F(t)", xlabel = "Time (s)", ylabel = "Force (N)", lw = 2,
-	          title = "Control Force (PID Controller)")
-	
-	plot(p4, p5, p6, layout = (3, 1), size = (800, 900))
-	
 end
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
@@ -1399,12 +1338,10 @@ version = "1.4.1+2"
 # ╔═╡ Cell order:
 # ╠═29de7720-0e60-11f0-1a02-4b4bba421db2
 # ╠═3016833e-5e39-40f1-99c0-5c66d7aed520
-# ╟─32fb54f7-78eb-46de-ad16-90ce92ee28b4
+# ╠═32fb54f7-78eb-46de-ad16-90ce92ee28b4
 # ╠═a8496eed-738f-48b7-b1d9-acc8598bc96a
 # ╠═540bf5bb-eb85-4f1e-901e-0cdca6118f46
 # ╠═8b1e3a41-1946-4238-83a6-7bdeed5d2f72
-# ╟─f3caf3c9-0a32-4b50-826d-e32273b7918d
-# ╠═173d20ab-c5fc-4262-b47a-20d3d0f4a925
-# ╟─4b0a5a3d-f39b-42d2-b1f5-671e87d1345b
+# ╠═f3caf3c9-0a32-4b50-826d-e32273b7918d
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
